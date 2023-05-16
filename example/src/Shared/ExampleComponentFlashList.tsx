@@ -10,6 +10,7 @@ import Article from './Article'
 import ContactsFlatList from './Contacts'
 import ContactsFlashList from './ContactsFlashList'
 import { HEADER_HEIGHT } from './Header'
+import Masonry from './Masonry'
 
 type Props = {
   emptyContacts?: boolean
@@ -34,6 +35,9 @@ const Example = React.forwardRef<CollapsibleRef, Props>(
             <ContactsFlashList emptyContacts={emptyContacts} limit={5} /> 
           */}
           <ContactsFlashList emptyContacts={emptyContacts} />
+        </Tabs.Tab>
+        <Tabs.Tab name="masonry" label="Masonry Layout">
+          <Masonry />
         </Tabs.Tab>
         <Tabs.Tab name="ordered" label="FlatList">
           <ContactsFlatList emptyContacts={emptyContacts} limit={5} />
