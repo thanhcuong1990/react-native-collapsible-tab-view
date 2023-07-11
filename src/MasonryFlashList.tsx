@@ -1,8 +1,8 @@
 import type {
-  MasonryFlashList as SPMasonryFlashList,
   MasonryFlashListProps,
+  MasonryFlashListRef,
 } from '@shopify/flash-list'
-import React, { useCallback } from 'react'
+import React, { LegacyRef, Component } from 'react'
 import Animated from 'react-native-reanimated'
 
 import {
@@ -25,7 +25,7 @@ import {
 type MasonryFlashListMemoProps = React.PropsWithChildren<
   MasonryFlashListProps<unknown>
 >
-type MasonryFlashListMemoRef = SPMasonryFlashList<any>
+type MasonryFlashListMemoRef = MasonryFlashListRef<any>
 
 let AnimatedMasonryFlashList: React.ComponentClass<
   MasonryFlashListProps<any>
@@ -53,7 +53,14 @@ const MasonryFlashListMemo = React.memo(
     (props, passRef) => {
       ensureFlastList()
       return AnimatedMasonryFlashList ? (
-        <AnimatedMasonryFlashList ref={passRef} {...props} />
+        <AnimatedMasonryFlashList
+          ref={
+            passRef as LegacyRef<
+              Component<MasonryFlashListProps<any>, any, any>
+            >
+          }
+          {...props}
+        />
       ) : (
         <></>
       )
@@ -69,7 +76,7 @@ function MasonryFlashListImpl<R>(
     contentContainerStyle: _contentContainerStyle,
     ...rest
   }: Omit<MasonryFlashListProps<R>, 'onScroll'>,
-  passRef: React.Ref<SPMasonryFlashList<any>>
+  passRef: React.Ref<MasonryFlashListRef<any>>
 ) {
   const name = useTabNameContext()
   const { setRef, contentInset } = useTabsContext()
@@ -132,24 +139,12 @@ function MasonryFlashListImpl<R>(
     [_contentContainerStyle, contentContainerStyle.paddingTop]
   )
 
-  const refWorkaround = useCallback(
-    (value: MasonryFlashListMemoRef | null): void => {
-      // https://github.com/Shopify/flash-list/blob/2d31530ed447a314ec5429754c7ce88dad8fd087/src/FlashList.tsx#L829
-      // We are not accessing the right element or view of the Flashlist (recyclerlistview). So we need to give
-      // this ref the access to it
-      // eslint-ignore
-      ;(recyclerRef as any)(value?.recyclerlistview_unsafe)
-      ;(ref as any)(value)
-    },
-    [recyclerRef, ref]
-  )
-
   return (
     // @ts-expect-error typescript complains about `unknown` in the memo, it should be T
     <MasonryFlashListMemo
       {...rest}
       onLayout={onLayout}
-      ref={refWorkaround}
+      ref={ref}
       contentContainerStyle={memoContentContainerStyle}
       bouncesZoom={false}
       onScroll={scrollHandler}
@@ -168,5 +163,5 @@ function MasonryFlashListImpl<R>(
  * Use like a regular MasonryFlashList.
  */
 export const MasonryFlashList = React.forwardRef(MasonryFlashListImpl) as <T>(
-  p: MasonryFlashListProps<T> & { ref?: React.Ref<SPMasonryFlashList<T>> }
+  p: MasonryFlashListProps<T> & { ref?: React.Ref<MasonryFlashListRef<T>> }
 ) => React.ReactElement
