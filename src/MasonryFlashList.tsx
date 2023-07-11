@@ -68,7 +68,7 @@ const MasonryFlashListMemo = React.memo(
   )
 )
 
-function FlashListImpl<R>(
+function MasonryFlashListImpl<R>(
   {
     style,
     onContentSizeChange,
@@ -160,8 +160,8 @@ function FlashListImpl<R>(
 }
 
 /**
- * Use like a regular FlashList.
+ * Use like a regular MasonryFlashList.
  */
-export const MasonryFlashList = React.forwardRef(FlashListImpl) as <T>(
+export const MasonryFlashList = React.forwardRef(MasonryFlashListImpl) as <T>(
   p: MasonryFlashListProps<T> & { ref?: React.Ref<MasonryFlashListRef<T>> }
 ) => React.ReactElement
