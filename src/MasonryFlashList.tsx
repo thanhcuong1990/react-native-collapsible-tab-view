@@ -27,22 +27,23 @@ type MasonryFlashListMemoProps = React.PropsWithChildren<
 >
 type MasonryFlashListMemoRef = MasonryFlashListRef<any>
 
-let AnimatedFlashList: React.ComponentClass<MasonryFlashListProps<any>> | null =
-  null
+let AnimatedMasonryFlashList: React.ComponentClass<
+  MasonryFlashListProps<any>
+> | null = null
 
 const ensureFlastList = () => {
-  if (AnimatedFlashList) {
+  if (AnimatedMasonryFlashList) {
     return
   }
 
   try {
     const flashListModule = require('@shopify/flash-list')
-    AnimatedFlashList = Animated.createAnimatedComponent(
+    AnimatedMasonryFlashList = Animated.createAnimatedComponent(
       flashListModule.MasonryFlashList
     ) as unknown as React.ComponentClass<MasonryFlashListProps<any>>
   } catch (error) {
     console.error(
-      'The optional dependency @shopify/flash-list is not installed. Please install it to use the FlashList component.'
+      'The optional dependency @shopify/flash-list is not installed. Please install it to use the MasonryFlashList component.'
     )
   }
 }
@@ -51,8 +52,8 @@ const MasonryFlashListMemo = React.memo(
   React.forwardRef<MasonryFlashListMemoRef, MasonryFlashListMemoProps>(
     (props, passRef) => {
       ensureFlastList()
-      return AnimatedFlashList ? (
-        <AnimatedFlashList
+      return AnimatedMasonryFlashList ? (
+        <AnimatedMasonryFlashList
           ref={
             passRef as LegacyRef<
               Component<MasonryFlashListProps<any>, any, any>
