@@ -34,9 +34,9 @@ const ensureFlastList = () => {
 
   try {
     const flashListModule = require('@shopify/flash-list')
-    AnimatedFlashList = (Animated.createAnimatedComponent(
+    AnimatedFlashList = Animated.createAnimatedComponent(
       flashListModule.FlashList
-    ) as unknown) as React.ComponentClass<FlashListProps<any>>
+    ) as unknown as React.ComponentClass<FlashListProps<any>>
   } catch (error) {
     console.error(
       'The optional dependency @shopify/flash-list is not installed. Please install it to use the FlashList component.'
@@ -90,10 +90,10 @@ function FlashListImpl<R>(
   })
 
   const scrollContentSizeChangeHandlers = useChainCallback(
-    React.useMemo(() => [scrollContentSizeChange, onContentSizeChange], [
-      onContentSizeChange,
-      scrollContentSizeChange,
-    ])
+    React.useMemo(
+      () => [scrollContentSizeChange, onContentSizeChange],
+      [onContentSizeChange, scrollContentSizeChange]
+    )
   )
 
   const memoRefreshControl = React.useMemo(
@@ -108,9 +108,10 @@ function FlashListImpl<R>(
 
   const contentInsetValue = useConvertAnimatedToValue<number>(contentInset)
 
-  const memoContentInset = React.useMemo(() => ({ top: contentInsetValue }), [
-    contentInsetValue,
-  ])
+  const memoContentInset = React.useMemo(
+    () => ({ top: contentInsetValue }),
+    [contentInsetValue]
+  )
 
   const memoContentOffset = React.useMemo(
     () => ({ x: 0, y: -contentInsetValue }),
