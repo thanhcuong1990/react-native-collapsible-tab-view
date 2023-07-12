@@ -1,8 +1,9 @@
 import type {
   MasonryFlashListProps,
   MasonryFlashListRef,
+  FlashList,
 } from '@shopify/flash-list'
-import React, { LegacyRef, Component } from 'react'
+import React, { LegacyRef, Component, useCallback } from 'react'
 import Animated from 'react-native-reanimated'
 
 import {
@@ -21,6 +22,8 @@ import {
  * Used as a memo to prevent rerendering too often when the context changes.
  * See: https://github.com/facebook/react/issues/15156#issuecomment-474590693
  */
+
+type FlashListMemoRef = FlashList<any>
 
 type MasonryFlashListMemoProps = React.PropsWithChildren<
   MasonryFlashListProps<unknown>
@@ -139,12 +142,24 @@ function MasonryFlashListImpl<R>(
     [_contentContainerStyle, contentContainerStyle.paddingTop]
   )
 
+  const refWorkaround = useCallback(
+    (value: FlashListMemoRef | null): void => {
+      // https://github.com/Shopify/flash-list/blob/2d31530ed447a314ec5429754c7ce88dad8fd087/src/FlashList.tsx#L829
+      // We are not accessing the right element or view of the Flashlist (recyclerlistview). So we need to give
+      // this ref the access to it
+      // eslint-ignore
+      ;(recyclerRef as any)(value?.recyclerlistview_unsafe)
+      ;(ref as any)(value)
+    },
+    [recyclerRef, ref]
+  )
+
   return (
     // @ts-expect-error typescript complains about `unknown` in the memo, it should be T
     <MasonryFlashListMemo
       {...rest}
       onLayout={onLayout}
-      ref={ref}
+      ref={refWorkaround}
       contentContainerStyle={memoContentContainerStyle}
       bouncesZoom={false}
       onScroll={scrollHandler}

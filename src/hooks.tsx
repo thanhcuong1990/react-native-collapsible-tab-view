@@ -288,10 +288,10 @@ export const useScrollHandlerY = (name: TabName) => {
    */
   const afterDrag = useSharedValue(0)
 
-  const tabIndex = useMemo(() => tabNames.value.findIndex((n) => n === name), [
-    tabNames,
-    name,
-  ])
+  const tabIndex = useMemo(
+    () => tabNames.value.findIndex((n) => n === name),
+    [tabNames, name]
+  )
 
   const scrollTo = useScroller()
 
