@@ -1,8 +1,9 @@
 import type {
-  MasonryFlashList as SPMasonryFlashList,
   MasonryFlashListProps,
+  MasonryFlashListRef,
+  FlashList,
 } from '@shopify/flash-list'
-import React, { useCallback } from 'react'
+import React, { LegacyRef, Component, useCallback } from 'react'
 import Animated from 'react-native-reanimated'
 
 import {
@@ -22,10 +23,12 @@ import {
  * See: https://github.com/facebook/react/issues/15156#issuecomment-474590693
  */
 
+type FlashListMemoRef = FlashList<any>
+
 type MasonryFlashListMemoProps = React.PropsWithChildren<
   MasonryFlashListProps<unknown>
 >
-type MasonryFlashListMemoRef = SPMasonryFlashList<any>
+type MasonryFlashListMemoRef = MasonryFlashListRef<any>
 
 let AnimatedMasonryFlashList: React.ComponentClass<
   MasonryFlashListProps<any>
@@ -38,9 +41,9 @@ const ensureFlastList = () => {
 
   try {
     const flashListModule = require('@shopify/flash-list')
-    AnimatedMasonryFlashList = (Animated.createAnimatedComponent(
+    AnimatedMasonryFlashList = Animated.createAnimatedComponent(
       flashListModule.MasonryFlashList
-    ) as unknown) as React.ComponentClass<MasonryFlashListProps<any>>
+    ) as unknown as React.ComponentClass<MasonryFlashListProps<any>>
   } catch (error) {
     console.error(
       'The optional dependency @shopify/flash-list is not installed. Please install it to use the MasonryFlashList component.'
@@ -53,7 +56,14 @@ const MasonryFlashListMemo = React.memo(
     (props, passRef) => {
       ensureFlastList()
       return AnimatedMasonryFlashList ? (
-        <AnimatedMasonryFlashList ref={passRef} {...props} />
+        <AnimatedMasonryFlashList
+          ref={
+            passRef as LegacyRef<
+              Component<MasonryFlashListProps<any>, any, any>
+            >
+          }
+          {...props}
+        />
       ) : (
         <></>
       )
@@ -69,7 +79,7 @@ function MasonryFlashListImpl<R>(
     contentContainerStyle: _contentContainerStyle,
     ...rest
   }: Omit<MasonryFlashListProps<R>, 'onScroll'>,
-  passRef: React.Ref<SPMasonryFlashList<any>>
+  passRef: React.Ref<MasonryFlashListRef<any>>
 ) {
   const name = useTabNameContext()
   const { setRef, contentInset } = useTabsContext()
@@ -96,10 +106,10 @@ function MasonryFlashListImpl<R>(
   })
 
   const scrollContentSizeChangeHandlers = useChainCallback(
-    React.useMemo(() => [scrollContentSizeChange, onContentSizeChange], [
-      onContentSizeChange,
-      scrollContentSizeChange,
-    ])
+    React.useMemo(
+      () => [scrollContentSizeChange, onContentSizeChange],
+      [onContentSizeChange, scrollContentSizeChange]
+    )
   )
 
   const memoRefreshControl = React.useMemo(
@@ -114,9 +124,10 @@ function MasonryFlashListImpl<R>(
 
   const contentInsetValue = useConvertAnimatedToValue<number>(contentInset)
 
-  const memoContentInset = React.useMemo(() => ({ top: contentInsetValue }), [
-    contentInsetValue,
-  ])
+  const memoContentInset = React.useMemo(
+    () => ({ top: contentInsetValue }),
+    [contentInsetValue]
+  )
 
   const memoContentOffset = React.useMemo(
     () => ({ x: 0, y: -contentInsetValue }),
@@ -132,7 +143,7 @@ function MasonryFlashListImpl<R>(
   )
 
   const refWorkaround = useCallback(
-    (value: MasonryFlashListMemoRef | null): void => {
+    (value: FlashListMemoRef | null): void => {
       // https://github.com/Shopify/flash-list/blob/2d31530ed447a314ec5429754c7ce88dad8fd087/src/FlashList.tsx#L829
       // We are not accessing the right element or view of the Flashlist (recyclerlistview). So we need to give
       // this ref the access to it
@@ -167,5 +178,5 @@ function MasonryFlashListImpl<R>(
  * Use like a regular MasonryFlashList.
  */
 export const MasonryFlashList = React.forwardRef(MasonryFlashListImpl) as <T>(
-  p: MasonryFlashListProps<T> & { ref?: React.Ref<SPMasonryFlashList<T>> }
+  p: MasonryFlashListProps<T> & { ref?: React.Ref<MasonryFlashListRef<T>> }
 ) => React.ReactElement
